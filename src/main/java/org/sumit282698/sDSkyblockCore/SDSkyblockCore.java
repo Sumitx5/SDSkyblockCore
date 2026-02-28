@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.sumit282698.sDSkyblockCore.api.PlayerSkills;
 import org.sumit282698.sDSkyblockCore.commands.GetItemCommand;
 import org.sumit282698.sDSkyblockCore.database.Database;
+import org.sumit282698.sDSkyblockCore.listeners.AbilityListener;
 import org.sumit282698.sDSkyblockCore.listeners.PlayerConnectionListener;
 import org.sumit282698.sDSkyblockCore.managers.ItemManager;
 import org.sumit282698.sDSkyblockCore.managers.ProfileManager;
@@ -59,6 +60,8 @@ public class SDSkyblockCore extends JavaPlugin {
         getLogger().info("Step 4: Stats Task started!");
         // COmbat
         getServer().getPluginManager().registerEvents(new CombatListener(), this);
+        getServer().getPluginManager().registerEvents(new AbilityListener(), this);
+
 
     }
 

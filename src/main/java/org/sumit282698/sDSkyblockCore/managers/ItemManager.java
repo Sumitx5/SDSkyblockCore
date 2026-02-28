@@ -47,9 +47,15 @@ public class ItemManager {
 
             NamespacedKey damageKey = new NamespacedKey(SDSkyblockCore.getInstance(), "damage");
             NamespacedKey strengthKey = new NamespacedKey(SDSkyblockCore.getInstance(), "strength");
+            NamespacedKey critChanceKey = new NamespacedKey(SDSkyblockCore.getInstance(), "crit_chance");
+            NamespacedKey critDamageKey = new NamespacedKey(SDSkyblockCore.getInstance(), "crit_damage");
+            NamespacedKey manaKey = new NamespacedKey(SDSkyblockCore.getInstance(), "intelligence");
 
             meta.getPersistentDataContainer().set(damageKey, PersistentDataType.DOUBLE, config.getDouble("stats.damage", 0.0));
             meta.getPersistentDataContainer().set(strengthKey, PersistentDataType.DOUBLE, config.getDouble("stats.strength", 0.0));
+            meta.getPersistentDataContainer().set(critChanceKey, PersistentDataType.DOUBLE, config.getDouble("stats.crit_chance", 0.0));
+            meta.getPersistentDataContainer().set(critDamageKey, PersistentDataType.DOUBLE, config.getDouble("stats.crit_damage", 0.0));
+            meta.getPersistentDataContainer().set(manaKey, PersistentDataType.DOUBLE, config.getDouble("stats.intelligence", 0.0));
 
             item.setItemMeta(meta);
         }
