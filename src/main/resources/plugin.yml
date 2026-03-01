@@ -4,6 +4,9 @@ main: org.sumit282698.sDSkyblockCore.SDSkyblockCore
 api-version: '1.21'
 
 commands:
-  sbget:
+  sdget:
     description: Get a custom Skyblock item
+    usage: /<command> <id>
+  sdskills:
+    description: add or remove skills
     usage: /<command> <id>

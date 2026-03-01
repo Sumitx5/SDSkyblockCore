@@ -3,6 +3,7 @@ package org.sumit282698.sDSkyblockCore;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.sumit282698.sDSkyblockCore.api.PlayerSkills;
 import org.sumit282698.sDSkyblockCore.commands.GetItemCommand;
+import org.sumit282698.sDSkyblockCore.commands.statsAdder;
 import org.sumit282698.sDSkyblockCore.database.Database;
 import org.sumit282698.sDSkyblockCore.listeners.AbilityListener;
 import org.sumit282698.sDSkyblockCore.listeners.PlayerConnectionListener;
@@ -11,6 +12,7 @@ import org.sumit282698.sDSkyblockCore.managers.ProfileManager;
 import org.sumit282698.sDSkyblockCore.tasks.StatsTask;
 import org.sumit282698.sDSkyblockCore.listeners.CombatListener;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class SDSkyblockCore extends JavaPlugin {
@@ -33,8 +35,17 @@ public class SDSkyblockCore extends JavaPlugin {
         this.itemManager.loadItems();
         this.profileManager = new ProfileManager();
 
+        statsAdder setStat = new statsAdder();
+
         // commands
-        getCommand("sbget").setExecutor(new GetItemCommand());
+        getCommand("sdget").setExecutor(new GetItemCommand());
+
+        getCommand("sdskills").setExecutor(setStat);
+        getCommand("sdskills").setTabCompleter((sender, cmd, alias, args) -> {
+            if (args.length == 2) return Arrays.asList("health", "defense", "strength", "intelligence");
+            return null;
+        });
+
 
         // loading Profile
         saveDefaultConfig();

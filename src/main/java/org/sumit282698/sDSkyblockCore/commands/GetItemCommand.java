@@ -5,7 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.sumit282698.sDSkyblockCore.SDSkyblockCore; // Make sure this matches your main package!
+import org.sumit282698.sDSkyblockCore.SDSkyblockCore;
 
 public class GetItemCommand implements CommandExecutor {
 
@@ -21,7 +21,7 @@ public class GetItemCommand implements CommandExecutor {
 
         // 2. Check if they provided an ID (e.g., /sbget aote)
         if (args.length == 0) {
-            player.sendMessage("§cUsage: /sbget <item_id>");
+            player.sendMessage("§cUsage: /sdget <item_id>");
             return true;
         }
 

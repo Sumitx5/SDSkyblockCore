@@ -13,8 +13,6 @@ public class PlayerSkills {
     private double currentHealth;
     private double maxMana;
     private double currentMana;
-
-    // Combat Stats
     private double critChance;
     private double critDamage;
 
