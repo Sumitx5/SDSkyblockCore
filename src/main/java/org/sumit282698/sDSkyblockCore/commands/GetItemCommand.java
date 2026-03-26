@@ -9,6 +9,12 @@ import org.sumit282698.sDSkyblockCore.SDSkyblockCore;
 
 public class GetItemCommand implements CommandExecutor {
 
+    private final SDSkyblockCore plugin;
+
+    public GetItemCommand(SDSkyblockCore plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // 1. Check if the sender is a player (not the console)

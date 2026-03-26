@@ -5,8 +5,19 @@ api-version: '1.21'
 
 commands:
   sdget:
-    description: Get a custom Skyblock item
-    usage: /<command> <id>
+    description: Gives a custom Skyblock item
+    usage: /<command> <itemId>
+    aliases: [sditem]
+    permission: sdskyblock.admin
+    permission-message: You don't have permission!
+
   sdskills:
-    description: add or remove skills
-    usage: /<command> <id>
+    description: Add or remove player skills
+    usage: /<command> <player> <stat> <amount>
+    aliases: [sds]
+    permission: sdskyblock.admin
+    permission-message: You don't have permission!
+
+  sdprofile:
+    description: Opens your Skyblock profile
+    usage: /<command>

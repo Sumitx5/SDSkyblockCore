@@ -1,26 +1,29 @@
 package org.sumit282698.sDSkyblockCore.commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.sumit282698.sDSkyblockCore.SDSkyblockCore;
 import org.sumit282698.sDSkyblockCore.api.PlayerSkills;
 
 public class statsAdder implements CommandExecutor {
+    private final SDSkyblockCore plugin;
 
+    public statsAdder(SDSkyblockCore plugin) {
+        this.plugin = plugin;
+    }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // 1. Permissions Check
-        if (!sender.hasPermission("skyblock.admin")) {
-            sender.sendMessage("§cYou don't have permission, Buddy!");
+
+        // Permission check
+        if (!sender.hasPermission("sdskyblock.admin")) {
+            sender.sendMessage("§cYou don't have permission!");
             return true;
         }
 
-        // 2. Syntax: /setstat <player> <stat> <value>
+        // Correct usage
         if (args.length < 3) {
-            sender.sendMessage("§eUsage: /sdskills <player> <health|defense|strength|intelligence> <value>");
+            sender.sendMessage("§eUsage: /sdskills <player> <stat> <value>");
             return true;
         }
 
@@ -41,22 +44,31 @@ public class statsAdder implements CommandExecutor {
             return true;
         }
 
-        // 3. Update the Stat
+        // Apply stat
         switch (stat) {
+
             case "health":
-                sPlayer.setMaxHealth(sPlayer.getMaxHealth() + value);
+                sPlayer.setMaxHealth(value);
+                break;
+
             case "defense":
-                sPlayer.setMaxHealth(sPlayer.getMaxHealth() + value);
+                sPlayer.setDefense(value);
+                break;
+
             case "strength":
-                sPlayer.setMaxHealth(sPlayer.getMaxHealth() + value);
+                sPlayer.setStrength(value);
+                break;
+
             case "intelligence":
-                sPlayer.setMaxHealth(sPlayer.getMaxHealth() + value);
+                sPlayer.setMaxMana(value);
+                break;
+
             default:
-                sender.sendMessage("§cInvalid stat! Use health, defense, strength, or intelligence.");
+                sender.sendMessage("§cInvalid stat! Use: health, defense, strength, intelligence");
+                return true;
         }
 
         sender.sendMessage("§aSet " + target.getName() + "'s " + stat + " to " + value + "!");
-
         return true;
     }
 }
