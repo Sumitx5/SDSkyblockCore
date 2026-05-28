@@ -3,7 +3,8 @@
 A powerful Minecraft server plugin inspired by Hypixel Skyblock. Bring the ultimate Skyblock experience to your players with custom items, unique abilities, player stats, and persistent database storage.
 
 [![GitHub Release](https://img.shields.io/github/v/release/sumit282698/SDSkyblockCore?style=flat-square&color=6f42c1)](https://github.com/sumit282698/SDSkyblockCore/releases/latest)
-[![Github All Releases](https://img.shields.io/github/downloads/sumit282698/SDSkyblockCore/total.svg?style=flat-square&color=2188ff)](https://github.com/sumit282698/SDSkyblockCore/releases)
+[![Github All Releases](https://img.shields.io/github/downloads/sumit282698/SDSkyblockCore/total?style=flat-square&color=2188ff)](https://github.com/sumit282698/SDSkyblockCore/releases)
+
 
 ---
 
