@@ -16,12 +16,12 @@ import org.sumit282698.sDSkyblockCore.api.PlayerSkills;
 import java.util.ArrayList;
 import java.util.List;
 
-public class profilemenu implements Listener {
+public class ProfileMenu implements Listener {
 
     private final Player player;
     private final Inventory inv;
 
-    public profilemenu(Player player) {
+    public ProfileMenu(Player player) {
         this.player = player;
         this.inv = Bukkit.createInventory(null, 27, ChatColor.GREEN + "Your Skyblock Stats");
         setupItems();
@@ -48,7 +48,6 @@ public class profilemenu implements Listener {
         List<String> loreList = new ArrayList<>();
         loreList.add(ChatColor.WHITE + lore);
         loreList.add(ChatColor.GREEN + "Current: " + ChatColor.GOLD + String.format("%.1f", value));
-        // Removed "Click to add +10 points"
         meta.setLore(loreList);
 
         item.setItemMeta(meta);
@@ -56,7 +55,7 @@ public class profilemenu implements Listener {
     }
 
     public void open() {
-        setupItems(); // Make sure stats are fresh
+        setupItems();
         player.openInventory(inv);
     }
 
@@ -65,6 +64,6 @@ public class profilemenu implements Listener {
         if (!(event.getWhoClicked() instanceof Player clicker)) return;
         if (!event.getView().getTitle().equals(ChatColor.GREEN + "Your Skyblock Stats")) return;
 
-        event.setCancelled(true); // prevent moving items
+        event.setCancelled(true);
     }
 }
