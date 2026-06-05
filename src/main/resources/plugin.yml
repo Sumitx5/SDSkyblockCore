@@ -1,5 +1,5 @@
 name: SDSkyblockCore
-version: '1.0.1-SNAPSHOT'
+version: '0.0.1'
 main: org.sumit282698.sDSkyblockCore.SDSkyblockCore
 api-version: '1.21'
 
