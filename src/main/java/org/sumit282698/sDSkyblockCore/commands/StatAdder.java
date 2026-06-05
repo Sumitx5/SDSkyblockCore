@@ -3,25 +3,26 @@ package org.sumit282698.sDSkyblockCore.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.NonNull;
 import org.sumit282698.sDSkyblockCore.SDSkyblockCore;
 import org.sumit282698.sDSkyblockCore.api.PlayerSkills;
 
-public class statsAdder implements CommandExecutor {
+public class StatAdder implements CommandExecutor {
     private final SDSkyblockCore plugin;
 
-    public statsAdder(SDSkyblockCore plugin) {
+    public StatAdder(SDSkyblockCore plugin) {
         this.plugin = plugin;
     }
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        // Permission check
+    @Override
+    public boolean onCommand(CommandSender sender, @NonNull Command command, @NonNull String label, String @NonNull [] args) {
+
+        //Permission check
         if (!sender.hasPermission("sdskyblock.admin")) {
             sender.sendMessage("§cYou don't have permission!");
             return true;
         }
 
-        // Correct usage
         if (args.length < 3) {
             sender.sendMessage("§eUsage: /sdskills <player> <stat> <value>");
             return true;
@@ -34,6 +35,11 @@ public class statsAdder implements CommandExecutor {
         }
 
         PlayerSkills sPlayer = SDSkyblockCore.getSPlayer(target.getUniqueId());
+        if (sPlayer == null) {
+            sender.sendMessage("§cFailed to load player core data!");
+            return true;
+        }
+
         String stat = args[1].toLowerCase();
         double value;
 
@@ -44,31 +50,43 @@ public class statsAdder implements CommandExecutor {
             return true;
         }
 
-        // Apply stat
         switch (stat) {
-
             case "health":
-                sPlayer.setMaxHealth(value);
+                sPlayer.setBaseMaxHealth(value);
+                sPlayer.setCurrentHealth(sPlayer.getMaxHealth());
                 break;
 
             case "defense":
-                sPlayer.setDefense(value);
+                sPlayer.setBaseDefense(value);
                 break;
 
             case "strength":
-                sPlayer.setStrength(value);
+                sPlayer.setBaseStrength(value);
                 break;
 
             case "intelligence":
-                sPlayer.setMaxMana(value);
+            case "mana":
+                sPlayer.setBaseMaxMana(value);
+                sPlayer.setCurrentMana(sPlayer.getMaxMana());
+                break;
+
+            case "crit_chance":
+            case "cc":
+                sPlayer.setBaseCritChance(value);
+                break;
+
+            case "crit_damage":
+            case "cd":
+                sPlayer.setBaseCritDamage(value);
                 break;
 
             default:
-                sender.sendMessage("§cInvalid stat! Use: health, defense, strength, intelligence");
+                sender.sendMessage("§cInvalid stat! Use: health, defense, strength, intelligence, cc, cd");
                 return true;
         }
 
-        sender.sendMessage("§aSet " + target.getName() + "'s " + stat + " to " + value + "!");
+        sender.sendMessage("§aSuccessfully updated " + target.getName() + "'s base " + stat + " to " + value + "!");
+        target.sendMessage("§aYour base " + stat + " was updated to " + value + " by an administrator.");
         return true;
     }
 }
