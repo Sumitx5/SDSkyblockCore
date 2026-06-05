@@ -13,32 +13,60 @@ import org.sumit282698.sDSkyblockCore.SDSkyblockCore;
 import java.io.File;
 import java.util.*;
 
+@SuppressWarnings("ALL")
 public class ItemManager {
     private final Map<String, ItemStack> customItems = new HashMap<>();
-    NamespacedKey typeKey = new NamespacedKey(SDSkyblockCore.getInstance(), "item_type");
+    private final SDSkyblockCore plugin;
+
+    //Cache the keys globally
+    private final NamespacedKey typeKey;
+    private final NamespacedKey damageKey;
+    private final NamespacedKey strengthKey;
+    private final NamespacedKey defenseKey;
+    private final NamespacedKey healthKey;
+    private final NamespacedKey intelKey;
+    private final NamespacedKey critChanceKey;
+    private final NamespacedKey critDamageKey;
+
+    public ItemManager(SDSkyblockCore plugin) {
+        this.plugin = plugin;
+        this.typeKey = new NamespacedKey(plugin, "item_type");
+        this.damageKey = new NamespacedKey(plugin, "damage");
+        this.strengthKey = new NamespacedKey(plugin, "strength");
+        this.defenseKey = new NamespacedKey(plugin, "defense");
+        this.healthKey = new NamespacedKey(plugin, "max_health");
+        this.intelKey = new NamespacedKey(plugin, "intelligence");
+        this.critChanceKey = new NamespacedKey(plugin, "crit_chance");
+        this.critDamageKey = new NamespacedKey(plugin, "crit_damage");
+    }
 
     public void loadItems() {
         customItems.clear();
-        File folder = new File(SDSkyblockCore.getInstance().getDataFolder(), "items");
+        File folder = new File(plugin.getDataFolder(), "items");
         if (!folder.exists()) folder.mkdirs();
 
-        for (File file : folder.listFiles()) {
+        File[] files = folder.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
             if (file.getName().endsWith(".yml")) {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-                String id = file.getName().replace(".yml", "");
+                String id = file.getName().replace(".yml", "").toLowerCase();
 
                 customItems.put(id, createItemStack(config));
             }
         }
+        plugin.getLogger().info("Loaded " + customItems.size() + " custom Skyblock items successfully!");
     }
 
     private ItemStack createItemStack(FileConfiguration config) {
         Material mat = Material.matchMaterial(config.getString("material", "STONE"));
+        if (mat == null) mat = Material.STONE;
+
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            // 1. Name And Lore
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getString("name", "&fItem")));
             List<String> lore = new ArrayList<>();
             for (String line : config.getStringList("lore")) {
@@ -46,43 +74,27 @@ public class ItemManager {
             }
             meta.setLore(lore);
 
-            // 2. Vars or stats
-            NamespacedKey typeKey = new NamespacedKey(SDSkyblockCore.getInstance(), "item_type");
-            NamespacedKey damageKey = new NamespacedKey(SDSkyblockCore.getInstance(), "damage");
-            NamespacedKey strengthKey = new NamespacedKey(SDSkyblockCore.getInstance(), "strength");
-            NamespacedKey defenseKey = new NamespacedKey(SDSkyblockCore.getInstance(), "defense");
-            NamespacedKey healthKey = new NamespacedKey(SDSkyblockCore.getInstance(), "max_health");
-            NamespacedKey intelKey = new NamespacedKey(SDSkyblockCore.getInstance(), "intelligence");
-            NamespacedKey critChanceKey = new NamespacedKey(SDSkyblockCore.getInstance(), "crit_chance");
-            NamespacedKey critDamageKey = new NamespacedKey(SDSkyblockCore.getInstance(), "crit_damage");
-
-            // 3.
             String type = config.getString("type", "ITEM").toUpperCase();
-            meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type);
-            // make the stats work
-            meta.getPersistentDataContainer().set(intelKey, PersistentDataType.DOUBLE, config.getDouble("stats.intelligence", 0.0));
-            meta.getPersistentDataContainer().set(critChanceKey, PersistentDataType.DOUBLE, config.getDouble("stats.crit_chance", 0.0));
-            meta.getPersistentDataContainer().set(critDamageKey, PersistentDataType.DOUBLE, config.getDouble("stats.crit_damage", 0.0));
+            var container = meta.getPersistentDataContainer();
 
-            // 4. The IF/ELSE Logic
-            if (type.equals("ARMOR")) {
-                // Save Armor stats to the hidden data
-                meta.getPersistentDataContainer().set(defenseKey, PersistentDataType.DOUBLE, config.getDouble("stats.defense", 0.0));
-                meta.getPersistentDataContainer().set(healthKey, PersistentDataType.DOUBLE, config.getDouble("stats.max_health", 0.0));
-                meta.getPersistentDataContainer().set(strengthKey, PersistentDataType.DOUBLE, config.getDouble("stats.strength", 0.0));
-            } else {
-                // Save Weapon stats to the hidden data
-                meta.getPersistentDataContainer().set(damageKey, PersistentDataType.DOUBLE, config.getDouble("stats.damage", 0.0));
-                meta.getPersistentDataContainer().set(strengthKey, PersistentDataType.DOUBLE, config.getDouble("stats.strength", 0.0));
-            }
+            container.set(typeKey, PersistentDataType.STRING, type);
 
-            // 5. Item Meta/Data Saver
+            container.set(damageKey, PersistentDataType.DOUBLE, config.getDouble("stats.damage", 0.0));
+            container.set(strengthKey, PersistentDataType.DOUBLE, config.getDouble("stats.strength", 0.0));
+            container.set(defenseKey, PersistentDataType.DOUBLE, config.getDouble("stats.defense", 0.0));
+            container.set(healthKey, PersistentDataType.DOUBLE, config.getDouble("stats.max_health", 0.0));
+            container.set(intelKey, PersistentDataType.DOUBLE, config.getDouble("stats.intelligence", 0.0));
+            container.set(critChanceKey, PersistentDataType.DOUBLE, config.getDouble("stats.crit_chance", 0.0));
+            container.set(critDamageKey, PersistentDataType.DOUBLE, config.getDouble("stats.crit_damage", 0.0));
+
             item.setItemMeta(meta);
         }
         return item;
     }
 
     public ItemStack getItem(String id) {
-        return customItems.get(id).clone();
+        if (id == null) return null;
+        ItemStack target = customItems.get(id.toLowerCase());
+        return (target != null) ? target.clone() : null;
     }
 }
