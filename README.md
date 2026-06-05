@@ -1,6 +1,6 @@
 Recreation in Progress...
 
-# 🌌 SDSkyblockCore
+# SDSkyblockCore
 
 A powerful Minecraft server plugin inspired by Hypixel Skyblock. Bring the ultimate Skyblock experience to your players with custom items, unique abilities, player stats, and persistent database storage.
 
