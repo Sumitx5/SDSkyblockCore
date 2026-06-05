@@ -15,7 +15,7 @@ A powerful Minecraft server plugin inspired by Hypixel Skyblock. Bring the ultim
 To ensure the plugin runs smoothly, make sure your server meets the following specifications:
 
 *   **Java Version:** Java 21
-*   **Minecraft Version:** 1.21.1
+*   **Minecraft Version:** 1.21.1 to 1.21.11
 *   **Server Software:** [Paper](https://papermc.io/) *(Recommended and fully tested)*
 
 > ⚠️ **Note:** This plugin is strictly built and tested for **Minecraft 1.21.1**. Compatibility with other versions is not guaranteed.
