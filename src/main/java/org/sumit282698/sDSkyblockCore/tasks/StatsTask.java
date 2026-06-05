@@ -16,8 +16,25 @@ public class StatsTask extends BukkitRunnable {
 
     private final SDSkyblockCore plugin;
 
+    private final NamespacedKey typeKey;
+    private final NamespacedKey dmgKey;
+    private final NamespacedKey strKey;
+    private final NamespacedKey defKey;
+    private final NamespacedKey healthKey;
+    private final NamespacedKey intelKey;
+    private final NamespacedKey ccKey;
+    private final NamespacedKey cdKey;
+
     public StatsTask(SDSkyblockCore plugin) {
         this.plugin = plugin;
+        this.typeKey = new NamespacedKey(plugin, "item_type");
+        this.dmgKey = new NamespacedKey(plugin, "damage");
+        this.strKey = new NamespacedKey(plugin, "strength");
+        this.defKey = new NamespacedKey(plugin, "defense");
+        this.healthKey = new NamespacedKey(plugin, "max_health");
+        this.intelKey = new NamespacedKey(plugin, "intelligence");
+        this.ccKey = new NamespacedKey(plugin, "crit_chance");
+        this.cdKey = new NamespacedKey(plugin, "crit_damage");
     }
 
     @Override
@@ -26,83 +43,67 @@ public class StatsTask extends BukkitRunnable {
             PlayerSkills sPlayer = SDSkyblockCore.getSPlayer(player.getUniqueId());
             if (sPlayer == null) continue;
 
-            // ------------------------
-            // Initialize bonus stats
-            // ------------------------
+            double bonusStrength = 0;
             double bonusDefense = 0;
             double bonusHealth = 0;
             double bonusIntelligence = 0;
+            double bonusCritChance = 0;
+            double bonusCritDamage = 0;
 
-            // Pre-create NamespacedKeys to avoid repeated instantiation
-            NamespacedKey typeKey = new NamespacedKey(plugin, "item_type");
-            NamespacedKey defKey = new NamespacedKey(plugin, "defense");
-            NamespacedKey healthKey = new NamespacedKey(plugin, "max_health");
-            NamespacedKey intelKey = new NamespacedKey(plugin, "intelligence");
-
-            // ------------------------
-            // Scan armor slots
-            // ------------------------
             for (ItemStack armor : player.getInventory().getArmorContents()) {
                 if (armor == null || !armor.hasItemMeta()) continue;
 
                 var data = armor.getItemMeta().getPersistentDataContainer();
-                String type = data.getOrDefault(typeKey, PersistentDataType.STRING, "ITEM");
 
-                if ("ARMOR".equals(type)) {
-                    bonusDefense += data.getOrDefault(defKey, PersistentDataType.DOUBLE, 0.0);
-                    bonusHealth += data.getOrDefault(healthKey, PersistentDataType.DOUBLE, 0.0);
-                    bonusIntelligence += data.getOrDefault(intelKey, PersistentDataType.DOUBLE, 0.0);
-                }
+                bonusStrength += data.getOrDefault(strKey, PersistentDataType.DOUBLE, 0.0);
+                bonusDefense += data.getOrDefault(defKey, PersistentDataType.DOUBLE, 0.0);
+                bonusHealth += data.getOrDefault(healthKey, PersistentDataType.DOUBLE, 0.0);
+                bonusIntelligence += data.getOrDefault(intelKey, PersistentDataType.DOUBLE, 0.0);
+                bonusCritChance += data.getOrDefault(ccKey, PersistentDataType.DOUBLE, 0.0);
+                bonusCritDamage += data.getOrDefault(cdKey, PersistentDataType.DOUBLE, 0.0);
             }
 
-            // ------------------------
-            // Scan main hand (weapon/utility)
-            // ------------------------
             ItemStack held = player.getInventory().getItemInMainHand();
             if (held != null && held.hasItemMeta()) {
                 var data = held.getItemMeta().getPersistentDataContainer();
+
+                bonusStrength += data.getOrDefault(strKey, PersistentDataType.DOUBLE, 0.0);
+                bonusDefense += data.getOrDefault(defKey, PersistentDataType.DOUBLE, 0.0);
+                bonusHealth += data.getOrDefault(healthKey, PersistentDataType.DOUBLE, 0.0);
                 bonusIntelligence += data.getOrDefault(intelKey, PersistentDataType.DOUBLE, 0.0);
+                bonusCritChance += data.getOrDefault(ccKey, PersistentDataType.DOUBLE, 0.0);
+                bonusCritDamage += data.getOrDefault(cdKey, PersistentDataType.DOUBLE, 0.0);
             }
 
-            // ------------------------
-            // Apply Skyblock stats
-            // ------------------------
-            sPlayer.setDefense(bonusDefense);
+            sPlayer.setBonusStats(bonusStrength, bonusDefense, bonusHealth, bonusIntelligence, bonusCritChance, bonusCritDamage);
 
-            // Mana calculation: 1 Intelligence = 1 Max Mana
-            double baseMana = 100;
-            sPlayer.setMaxMana(baseMana + bonusIntelligence);
-            sPlayer.setCurrentMana(Math.min(sPlayer.getMaxMana(), sPlayer.getCurrentMana()));
+            var maxHealthAttr = player.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealthAttr != null) {
+                double targetVanillaMax = sPlayer.getMaxHealth() / 5.0;
+                maxHealthAttr.setBaseValue(targetVanillaMax);
 
-            // Health calculation
-            double baseHealth = 100; // Skyblock base HP
-            double newMaxHealth = baseHealth + bonusHealth;
-            sPlayer.setMaxHealth(newMaxHealth);
+                double healthPercent = sPlayer.getCurrentHealth() / sPlayer.getMaxHealth();
+                double targetVanillaHealth = Math.max(1.0, Math.min(targetVanillaMax, healthPercent * targetVanillaMax));
 
-            // Map Skyblock health (0–100+) to Minecraft's 20 HP scale
-            double healthPercent = sPlayer.getCurrentHealth() / sPlayer.getMaxHealth();
-            double vanillaHealth = Math.max(0.1, Math.min(20.0, healthPercent * 20.0));
+                if (Math.abs(player.getHealth() - targetVanillaHealth) > 0.5) {
+                    player.setHealth(targetVanillaHealth);
+                }
+            }
 
-            player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(newMaxHealth / 5.0);
-            player.setHealth(vanillaHealth);
+            double regenAmount = sPlayer.getMaxMana() * 0.001;
+            sPlayer.regenMana(regenAmount);
 
-            // ------------------------
-            // Mana regeneration (2% per tick)
-            // ------------------------
-            double regenAmount = sPlayer.getMaxMana() * 0.02;
-            sPlayer.setCurrentMana(Math.min(sPlayer.getMaxMana(), sPlayer.getCurrentMana() + regenAmount));
+            double hpRegenAmount = ((sPlayer.getMaxHealth() * 0.02) + 1.0) / 20.0;
+            sPlayer.heal(hpRegenAmount);
 
-            // ------------------------
-            // Update Action Bar
-            // ------------------------
             sendActionBar(player, sPlayer);
         }
     }
 
     private void sendActionBar(Player player, PlayerSkills sPlayer) {
-        String healthStr = "§c" + (int) sPlayer.getCurrentHealth() + "/" + (int) sPlayer.getMaxHealth() + "❤";
-        String defenseStr = "§a" + (int) sPlayer.getDefense() + "❈ Defense";
-        String manaStr = "§b" + (int) sPlayer.getCurrentMana() + "/" + (int) sPlayer.getMaxMana() + "✎ Mana";
+        String healthStr = "§c" + (int) Math.round(sPlayer.getCurrentHealth()) + "/" + (int) Math.round(sPlayer.getMaxHealth()) + "❤ Health";
+        String defenseStr = "§a" + (int) Math.round(sPlayer.getDefense()) + "❈ Defense";
+        String manaStr = "§b" + (int) Math.round(sPlayer.getCurrentMana()) + "/" + (int) Math.round(sPlayer.getMaxMana()) + "✎ Mana";
 
         String actionBar = healthStr + "     " + defenseStr + "     " + manaStr;
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(actionBar));
