@@ -24,30 +24,34 @@ public class PlayerConnectionListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        // 1. Create the blank profile in memory
         plugin.getProfileManager().createProfile(uuid);
-        PlayerSkills PlayerSkills = plugin.getProfileManager().getProfile(uuid);
+        PlayerSkills sPlayer = plugin.getProfileManager().getProfile(uuid);
 
-        // 2. Load the actual data from SQLite into the SPlayer object
-        plugin.getDatabase().loadSPlayer(PlayerSkills);
+        if (sPlayer == null) {
+            plugin.getLogger().warning("Could not create stats profile for " + player.getName());
+            return;
+        }
+        plugin.getDatabase().loadSPlayer(sPlayer);
 
-        // 3. Sync the Health (Pro Fix)
-        // Unlock the Minecraft health cap so 100+ health works
-        player.getAttribute(Attribute.MAX_HEALTH)
-                .setBaseValue(PlayerSkills.getMaxHealth());
-        player.setHealth(PlayerSkills.getMaxHealth()); // Set to full health on join
+        var maxHealthAttr = player.getAttribute(Attribute.MAX_HEALTH);
+        if (maxHealthAttr != null) {
+            double targetVanillaMax = sPlayer.getMaxHealth() / 5.0;
+            maxHealthAttr.setBaseValue(targetVanillaMax);
+            player.setHealth(targetVanillaMax);
+        }
+        sPlayer.setCurrentHealth(sPlayer.getMaxHealth());
+        sPlayer.setCurrentMana(sPlayer.getMaxMana());
 
-        player.sendMessage("§a§lSKYBLOCK §7Stats loaded successfully!");
+        player.sendMessage("§a§lSKYBLOCK §7Your custom profile and stats have loaded!");
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        PlayerSkills PlayerSkills = plugin.getProfileManager().getProfile(uuid);
+        PlayerSkills sPlayer = plugin.getProfileManager().getProfile(uuid);
 
-        if (PlayerSkills != null) {
-            // Save to database before removing from memory
-            plugin.getDatabase().saveSPlayer(PlayerSkills);
+        if (sPlayer != null) {
+            plugin.getDatabase().saveSPlayer(sPlayer);
             plugin.getProfileManager().removeProfile(uuid);
         }
     }
