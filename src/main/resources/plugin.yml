@@ -9,15 +9,13 @@ commands:
     usage: /<command> <itemId>
     aliases: [sditem]
     permission: sdskyblock.admin
-    permission-message: You don't have permission!
-
+    permission-message: §cYou don't have permission!
   sdskills:
     description: Add or remove player skills
     usage: /<command> <player> <stat> <amount>
     aliases: [sds]
     permission: sdskyblock.admin
-    permission-message: You don't have permission!
-
+    permission-message: §cYou don't have permission!
   sdprofile:
     description: Opens your Skyblock profile
     usage: /<command>
